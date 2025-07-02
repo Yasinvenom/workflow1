@@ -1,0 +1,35 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Clone repository
+        uses: actions/checkout@v3
+
+      - name: 🔧 Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: 📦 Install MAUI workload
+        run: dotnet workload install maui-android
+
+      - name: 🛠️ Restore dependencies
+        run: dotnet restore
+
+      - name: 🔨 Build Release APK
+        run: dotnet publish -f:net8.0-android -c Release
+
+      - name: 📤 Upload artifact (.apk)
+        uses: actions/upload-artifact@v3
+        with:
+          name: eitaa-apk
+          path: |
+            **/bin/Release/net8.0-android/publish/*.apk
